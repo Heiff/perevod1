@@ -18,7 +18,6 @@ const addCard = async(req,res) => {
 
 const getStore = async(req,res) => {
     try {
-        console.log(req);
         const product = await pg("select * from store")
         res.status(200).json(product)
     } catch (error) {
@@ -36,10 +35,11 @@ const Pay = async(req,res) =>{
             const cashback = money * 0.02 
             const sidebalance = money * 0.03
             const newmoney = Math.floor(money - (cashback + sidebalance))
+            const reqmoney = parseInt(money)
             const newId = parseInt(id); 
             await pg("start transaction")[0]
             if (card.balance >= money) {
-                await pg("update card set balance = balance - $1 where id = $2",money,findUser)
+                await pg("update card set balance = balance - $1 where card_id = $2",reqmoney,findUser)
                 await pg("update store set balance = balance + $1 where id = $2",newmoney,newId)
                 await pg("update cashback set balance = balance + $1 where user_id = $2",cashback,findUser)
                 await pg("update cash set balance = balance + $1",sidebalance)

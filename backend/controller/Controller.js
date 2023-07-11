@@ -37,7 +37,7 @@ const Pay = async(req,res) =>{
             const sidebalance = money * 0.03
             const newmoney = Math.floor(money - (cashback + sidebalance))
             const newId = parseInt(id); 
-           
+            await pg("start transaction")[0]
             if (card.balance >= money) {
                 await pg("update card set balance = balance - $1 where id = $2",money,findUser)
                 await pg("update store set balance = balance + $1 where id = $2",newmoney,newId)
@@ -46,6 +46,7 @@ const Pay = async(req,res) =>{
                 res.status(200).json({message:'succes'})
             }
             if (card.balance < money) {
+                await pg("rollback")[0]
                 res.status(400).json({message:'pulingiz yetmaydi'})
             }   
         }
